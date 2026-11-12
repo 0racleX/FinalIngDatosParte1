@@ -1,0 +1,11 @@
+== terraform state list (vacío) ==
+== S3 ==
+
+aws: [ERROR]: An error occurred (NoSuchBucket) when calling the ListObjectsV2 operation: The specified bucket does not exist
+== Glue ==
+aws: [ERROR]: An error occurred (EntityNotFoundException) when calling the GetDatabase operation: Database entregas_db not found.
+== Athena ==
+AthenaErrorCode: INVALID_INPUT
+aws: [ERROR]: An error occurred (InvalidRequestException) when calling the GetWorkGroup operation: WorkGroup is not found.
+Additional error details:
+AthenaErrorCode: INVALID_INPUT
