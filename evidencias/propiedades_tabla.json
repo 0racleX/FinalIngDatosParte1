@@ -1,0 +1,12 @@
+{
+    "skip.header.line.count": "1",
+    "projection.fecha.format": "yyyy-MM-dd",
+    "projection.fecha.interval.unit": "DAYS",
+    "EXTERNAL": "TRUE",
+    "projection.fecha.range": "2026-10-01,2026-10-03",
+    "classification": "csv",
+    "projection.fecha.interval": "1",
+    "projection.enabled": "true",
+    "projection.fecha.type": "date",
+    "storage.location.template": "s3://de-final-entregas-145295679723/entregas/fecha=${fecha}/"
+}

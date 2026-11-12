@@ -1,19 +1,18 @@
 #!/usr/bin/env bash
 # Ejecuta UNA sentencia de un archivo .sql en Athena, guarda el resultado como CSV
 # y registra la ejecucion en evidencias/ejecuciones_athena.csv.
+# Requiere solo AWS CLI y Terraform (sin jq).
 #
 # Uso: bash scripts/athena.sh <etapa> <archivo_sql> <archivo_resultado> [numero_sentencia]
-#   etapa: inicial | final
-#   numero_sentencia: 1 por defecto (para archivos con varias consultas separadas por ';')
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
 etapa="$1"; archivo_sql="$2"; archivo_resultado="$3"; n="${4:-1}"
 registro="evidencias/ejecuciones_athena.csv"
 
-workgroup=$(jq -r '.workgroup.value' evidencias/outputs.json)
-base_datos=$(jq -r '.base_datos.value' evidencias/outputs.json)
-region=$(jq -r '.region.value' evidencias/outputs.json)
+workgroup=$(terraform -chdir=infraestructura output -raw workgroup)
+base_datos=$(terraform -chdir=infraestructura output -raw base_datos)
+region=$(terraform -chdir=infraestructura output -raw region)
 
 # Quita comentarios '--' y toma la sentencia numero n (separadas por ';').
 sql=$(sed 's/--.*$//' "$archivo_sql" | awk -v n="$n" 'BEGIN{RS=";"} NR==n{print}')
@@ -42,10 +41,11 @@ while :; do
     esac
 done
 
-# Convierte el resultado a CSV sin comillas (los valores no contienen comas).
+# Cada fila sale separada por tabuladores; se convierte a CSV (los valores no tienen comas).
 mkdir -p "$(dirname "$archivo_resultado")"
-aws athena get-query-results --region "$region" --query-execution-id "$id" --output json \
-    | jq -r '.ResultSet.Rows[] | [.Data[].VarCharValue // ""] | join(",")' > "$archivo_resultado"
+aws athena get-query-results --region "$region" --query-execution-id "$id" \
+    --query 'ResultSet.Rows[*].Data[*].VarCharValue' --output text \
+    | tr '\t' ',' > "$archivo_resultado"
 
 [ -f "$registro" ] || echo "etapa,archivo_sql,id_ejecucion,archivo_resultado" > "$registro"
 echo "$etapa,$archivo_sql,$id,$archivo_resultado" >> "$registro"

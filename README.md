@@ -29,10 +29,10 @@ El enunciado original está en [ENUNCIADO.md](ENUNCIADO.md).
 
 - Ubuntu (WSL2) o Linux/Mac con `bash`.
 - Una cuenta de AWS con permisos sobre S3, Glue y Athena.
-- AWS CLI v2, Terraform >= 1.5, `jq` y `git`.
+- AWS CLI v2, Terraform >= 1.5 y `git`.
 
 ```bash
-sudo apt update && sudo apt install -y unzip jq git curl gnupg software-properties-common
+sudo apt update && sudo apt install -y unzip git curl gnupg software-properties-common
 
 # AWS CLI v2
 curl -sSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o awscliv2.zip
@@ -44,7 +44,7 @@ echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://
   | sudo tee /etc/apt/sources.list.d/hashicorp.list
 sudo apt update && sudo apt install -y terraform
 
-aws --version && terraform version && jq --version
+aws --version && terraform version
 ```
 
 ## Configuración
@@ -94,7 +94,7 @@ terraform apply -no-color tfplan 2>&1 | tee ../evidencias/aplicacion_terraform.t
 terraform output -json > ../evidencias/outputs.json
 cd ..
 
-BUCKET=$(jq -r '.bucket.value' evidencias/outputs.json)
+BUCKET=$(terraform -chdir=infraestructura output -raw bucket)
 echo "$BUCKET"
 ```
 
